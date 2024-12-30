@@ -1,0 +1,5 @@
+package config
+
+SCREEN_WIDTH :: 768
+SCREEN_HEIGHT :: 576
+TARGET_FPS :: 60
