@@ -34,9 +34,9 @@ Zombie :: struct {
 Dpad :: struct {
 	x:        int,
 	y:        int,
-	rad:      int, // = 30
-	color:    rl.Color, // = {128, 128, 128, 128}
-	keydown:  int, //= -1
+	rad:      int,
+	color:    rl.Color,
+	keydown:  int,
 	collider: [4][2]f32,
 	distance: f32,
 	padding:  int,

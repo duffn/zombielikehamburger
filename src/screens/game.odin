@@ -12,14 +12,14 @@ import "../entities"
 GameplayText :: struct {
 	button_font:         rl.Font,
 	font:                rl.Font,
-	font_size:           int, // = 48
-	start_text:          cstring, // = "Play Again"
+	font_size:           int,
+	start_text:          cstring,
 	start_text_position: rl.Vector2,
 	start_text_size:     rl.Vector2,
-	back_text:           cstring, // = "Back"
+	back_text:           cstring,
 	back_text_position:  rl.Vector2,
 	back_text_size:      rl.Vector2,
-	button_font_size:    f32, // = 36
+	button_font_size:    f32,
 }
 
 @(private = "file")
