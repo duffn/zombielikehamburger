@@ -8,11 +8,17 @@ CAR_TILE_SIZE :: 24
 blue_car_texture: rl.Texture2D
 pink_car_texture: rl.Texture2D
 
+CarType :: enum {
+	Blue,
+	Pink,
+}
+
 Car :: struct {
 	speed:    f32,
 	position: rl.Vector2,
 	texture:  rl.Texture2D,
 	frame:    rl.Rectangle,
+	type:     CarType,
 }
 
 
@@ -24,12 +30,13 @@ car_init :: proc() {
 
 car_update :: proc(g: ^Game, dt: f32) {
 	for &car in g.cars {
-		if car.texture == blue_car_texture {
+		switch car.type {
+		case .Blue:
 			car.position.y += car.speed * dt
 			if car.position.y > f32(rl.GetScreenHeight()) + 100 {
 				car.position.y = -100
 			}
-		} else if car.texture == pink_car_texture {
+		case .Pink:
 			car.position.y -= car.speed * dt
 			if car.position.y < -100 {
 				car.position.y = f32(rl.GetScreenHeight()) + 100
@@ -80,24 +87,33 @@ cars_place :: proc(g: ^Game) {
 	result := road_group_tiles_by_x(g.roads)
 	defer delete(result)
 	for tile in result {
-		bc := car_make(blue_car_texture)
+		bc := car_make(.Blue)
 		bc.position.x = f32(tile) + 5
-		bc.position.y = 0
+		bc.position.y = -100
 		bc.speed = f32(rl.GetRandomValue(200, 1000))
 		append(&g.cars, bc)
 
-		pc := car_make(pink_car_texture)
+		pc := car_make(.Pink)
 		pc.position.x = f32(tile) + 35
-		pc.position.y = f32(rl.GetScreenHeight()) - f32(pc.texture.height)
+		pc.position.y = f32(rl.GetScreenHeight()) - f32(pc.texture.height) + 100
 		pc.speed = f32(rl.GetRandomValue(200, 1000))
 		append(&g.cars, pc)
 	}
 }
 
 
-car_make :: proc(texture: rl.Texture2D) -> Car {
+car_make :: proc(car_type: CarType) -> Car {
+	texture: rl.Texture2D
+	switch car_type {
+	case .Blue:
+		texture = blue_car_texture
+	case .Pink:
+		texture = pink_car_texture
+	}
+
 	c := Car {
 		texture = texture,
+		type    = car_type,
 	}
 
 	frame := rl.Rectangle{0, 0, f32(texture.width) / CAR_NUM_FRAMES, f32(texture.height)}
