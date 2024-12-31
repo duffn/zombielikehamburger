@@ -12,14 +12,14 @@ import "../entities"
 GameplayText :: struct {
 	button_font:         rl.Font,
 	font:                rl.Font,
-	font_size:           int, // = 48
-	start_text:          cstring, // = "Play Again"
+	font_size:           int,
+	start_text:          cstring,
 	start_text_position: rl.Vector2,
 	start_text_size:     rl.Vector2,
-	back_text:           cstring, // = "Back"
+	back_text:           cstring,
 	back_text_position:  rl.Vector2,
 	back_text_size:      rl.Vector2,
-	button_font_size:    f32, // = 36
+	button_font_size:    f32,
 }
 
 @(private = "file")
@@ -103,7 +103,7 @@ update_gameplay_screen :: proc(dt: f32, g: ^entities.Game) {
 		old_zombie_x := g.zombie.position.x
 		old_zombie_y := g.zombie.position.y
 
-		entities.zombie_update(&g.zombie, dt)
+		entities.zombie_update(&g.dpad, &g.zombie, dt)
 		entities.obstruction_update(g, old_zombie_x, old_zombie_y)
 		entities.car_update(g, dt)
 		entities.cow_update(g)
@@ -174,6 +174,17 @@ draw_gameplay_screen :: proc(g: ^entities.Game) {
 			1.0,
 			{255, 0, 0, 255},
 		)
+
+		if config.IS_WEB {
+			for i in 0 ..< 4 {
+				rl.DrawCircle(
+					i32(g.dpad.collider[i][0]),
+					i32(g.dpad.collider[i][1]),
+					f32(g.dpad.rad),
+					g.dpad.color,
+				)
+			}
+		}
 	}
 
 	if g.is_game_over {

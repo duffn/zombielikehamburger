@@ -14,13 +14,11 @@ main_arena: mem.Arena
 main_data: [mem.Megabyte * 20]byte
 temp_allocator: mem.Scratch_Allocator
 
-IS_WEB :: ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32
-
 
 init :: proc() {
 	context = runtime.default_context()
 
-	when ODIN_DEBUG && !IS_WEB {
+	when ODIN_DEBUG && !config.IS_WEB {
 		rl.SetTraceLogLevel(.DEBUG)
 
 		track: mem.Tracking_Allocator
@@ -46,7 +44,7 @@ init :: proc() {
 		rl.SetTraceLogLevel(.ERROR)
 	}
 
-	when IS_WEB {
+	when config.IS_WEB {
 		mem.arena_init(&main_arena, main_data[:])
 		context.allocator = mem.arena_allocator(&main_arena)
 
