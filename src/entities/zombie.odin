@@ -31,6 +31,17 @@ Zombie :: struct {
 	death_sound:     rl.Sound,
 }
 
+Dpad :: struct {
+	x:        int,
+	y:        int,
+	rad:      int, // = 30
+	color:    rl.Color, // = {128, 128, 128, 128}
+	keydown:  int, //= -1
+	collider: [4][2]f32,
+	distance: f32,
+	padding:  int,
+}
+
 
 zombie_init :: proc(g: ^Game) {
 	z := Zombie {
@@ -55,6 +66,23 @@ zombie_init :: proc(g: ^Game) {
 	z.width = z.frame_width * f32(z.scale)
 	z.height = z.frame_height * f32(z.scale)
 	z.bounds = rl.Rectangle{z.position.x, z.position.y, z.width, z.height}
+
+	g.dpad = Dpad {
+		rad      = 30,
+		color    = {128, 128, 128, 128},
+		keydown  = -1,
+		distance = 1.75,
+		padding  = 60,
+	}
+
+	g.dpad.x = g.dpad.padding + g.dpad.rad
+	g.dpad.y = int(rl.GetScreenHeight()) - g.dpad.padding - g.dpad.rad
+	g.dpad.collider = [4][2]f32 {
+		{f32(g.dpad.x), f32(g.dpad.y) - f32(g.dpad.rad) * g.dpad.distance}, // up
+		{f32(g.dpad.x) - f32(g.dpad.rad) * g.dpad.distance, f32(g.dpad.y)}, // left
+		{f32(g.dpad.x) + f32(g.dpad.rad) * g.dpad.distance, f32(g.dpad.y)}, // right
+		{f32(g.dpad.x), f32(g.dpad.y) + f32(g.dpad.rad) * g.dpad.distance}, // down
+	}
 
 	g.zombie = z
 }
@@ -81,7 +109,53 @@ zombie_randomly_place :: proc(z: ^Zombie, used_x_positions: [dynamic]f32) {
 	z.position.y = f32(rl.GetRandomValue(0, i32(rl.GetScreenHeight()) - i32(z.height)))
 }
 
-zombie_update :: proc(z: ^Zombie, dt: f32) {
+
+zombie_update :: proc(dpad: ^Dpad, z: ^Zombie, dt: f32) {
+	// Touch screen dpad when on web
+	if config.IS_WEB {
+		dpad.keydown = -1
+		input_x: f32 = 0.0
+		input_y: f32 = 0.0
+
+		if rl.GetTouchPointCount() > 0 {
+			input_x = f32(rl.GetTouchX())
+			input_y = f32(rl.GetTouchY())
+		} else {
+			input_x = f32(rl.GetMouseX())
+			input_y = f32(rl.GetMouseY())
+		}
+
+		for i in 0 ..< 4 {
+			if math.abs(dpad.collider[i][1] - input_y) + math.abs(dpad.collider[i][0] - input_x) <
+			   f32(dpad.rad) {
+				dpad.keydown = i
+				break
+			}
+		}
+
+		if dpad.keydown != -1 {
+			switch dpad.keydown {
+			case 0:
+				z.current_row = 3
+				z.position.y -= z.speed * dt
+				z.is_moving = true
+			case 1:
+				z.current_row = 2
+				z.position.x -= z.speed * dt
+				z.is_moving = true
+			case 2:
+				z.current_row = 0
+				z.position.x += z.speed * dt
+				z.is_moving = true
+			case 3:
+				z.current_row = 1
+				z.position.y += z.speed * dt
+				z.is_moving = true
+			}
+		}
+	}
+
+	// Key movement
 	if rl.IsKeyDown(.RIGHT) || rl.IsKeyDown(.D) {
 		z.current_row = 0
 		z.position.x += z.speed * dt

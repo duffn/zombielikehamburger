@@ -23,4 +23,5 @@ Game :: struct {
 	obstructions:   [OBSTRUCTION_NUM]Obstruction,
 	cars:           [dynamic]Car,
 	finish_screen:  GameScreen,
+	dpad:           Dpad,
 }

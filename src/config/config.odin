@@ -1,5 +1,7 @@
 package config
 
+IS_WEB :: ODIN_ARCH == .wasm32 || ODIN_ARCH == .wasm64p32
+
 SCREEN_WIDTH :: 768
 SCREEN_HEIGHT :: 576
 TARGET_FPS :: 60
